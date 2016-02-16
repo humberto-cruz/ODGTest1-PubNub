@@ -80,6 +80,14 @@ public class ContactDataFragment extends Fragment {
             }
         });
 
+        mBtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();
+            }
+        });
+
         return v;
     }
 
