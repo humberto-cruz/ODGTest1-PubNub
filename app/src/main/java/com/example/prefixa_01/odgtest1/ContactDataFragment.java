@@ -38,8 +38,6 @@ public class ContactDataFragment extends Fragment {
 
     String username;
 
-    private Pubnub mPubNub;
-
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -65,6 +63,8 @@ public class ContactDataFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dispatchCall(mClient.getmName());
+                //Toast.makeText(getActivity(), "" + mClient.getmName(), Toast.LENGTH_SHORT).show();
+
             }
 
         });
@@ -95,7 +95,7 @@ public class ContactDataFragment extends Fragment {
      */
     public void dispatchCall(final String callNum){
         final String callNumStdBy = callNum + Constants.STDBY_SUFFIX;
-        this.mPubNub.hereNow(callNumStdBy, new Callback() {
+        MainActivity.mPubNub.hereNow(callNumStdBy, new Callback() {
             @Override
             public void successCallback(String channel, Object message) {
                 Log.d("MA-dC", "HERE_NOW: " + " CH - " + callNumStdBy + " " + message.toString());
@@ -108,7 +108,7 @@ public class ContactDataFragment extends Fragment {
                     JSONObject jsonCall = new JSONObject();
                     jsonCall.put(Constants.JSON_CALL_USER, username);
                     jsonCall.put(Constants.JSON_CALL_TIME, System.currentTimeMillis());
-                    mPubNub.publish(callNumStdBy, jsonCall, new Callback() {
+                    MainActivity.mPubNub.publish(callNumStdBy, jsonCall, new Callback() {
                         @Override
                         public void successCallback(String channel, Object message) {
                             Log.d("MA-dC", "SUCCESS: " + message.toString());
