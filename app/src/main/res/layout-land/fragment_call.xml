@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:clickable="false">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_surface"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        />
+
+
+    <LinearLayout
+        android:background="#FFFFFF"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="end"
+        android:gravity="center_vertical"
+        android:clickable="false">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:paddingBottom="10dp"
+            android:contentDescription="User Photo" />
+
+
+
+        <TextView
+            android:id="@+id/call_fragment_caller_id_text_view"
+            android:paddingTop="10dp"
+            android:paddingBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            tools:text="Caller ID"/>
+
+        <Button
+            android:id="@+id/btn_end_call"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="End"
+            android:focusable="true"
+            android:paddingBottom="10dp"
+            />
+
+
+    </LinearLayout>
+
+</LinearLayout>
