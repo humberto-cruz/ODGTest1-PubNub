@@ -46,11 +46,53 @@ public class ContactListFragment extends Fragment {
         ClientLab clientLab = ClientLab.get(getActivity());
         List<Client> clients =  clientLab.getmClients();
 
+        MainActivity.mPubNub.hereNow(false, true,  new Callback() {
+            @Override
+            public void successCallback(String channel, Object message) {
+                Log.d("MA-dC", "HERE_NOW: " + " User list " + message.toString());
+                try {
+                    int occupancy = ((JSONObject) message).getInt(Constants.JSON_TOTAL_OCCUPANCY);
+                    JSONObject channels = ((JSONObject) message).getJSONObject(Constants.JSON_CHANNELS);
+                    for(int i=0; i<channels.length(); i++){
+
+                    }
+                    Log.d("json", "TOTAL_OCUPPANCY" + occupancy);
+                    JSONObject jsonCall = new JSONObject();
+                    /*jsonCall.put(Constants.JSON_CALL_USER, username);
+                    jsonCall.put(Constants.JSON_CALL_TIME, System.currentTimeMillis());
+                    MainActivity.mPubNub.publish(callNumStdBy, jsonCall, new Callback() {
+                        @Override
+                        public void successCallback(String channel, Object message) {
+                            Log.d("MA-dC", "SUCCESS: " + message.toString());
+
+                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.fragment, CallFragment.newInstance(username, mClient.getmName()));
+                            transaction.addToBackStack(null);
+                            transaction.commit();
+
+
+                        }
+                    });*/
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         mAdapter = new ClientAdapter(clients);
         mClientsRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
 
+    }
+
+    private void showToast(final String message){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public class ClientHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnFocusChangeListener{

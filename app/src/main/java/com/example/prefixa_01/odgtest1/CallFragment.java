@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.humberto.pnwebrtc.PnPeer;
 import com.example.humberto.pnwebrtc.PnRTCClient;
+import com.example.prefixa_01.odgtest1.adt.ChatMessage;
 import com.example.prefixa_01.odgtest1.util.Constants;
 import com.example.prefixa_01.odgtest1.util.LogRTCListener;
 
@@ -76,9 +77,6 @@ public class CallFragment extends Fragment {
         //UUID clientId = (UUID) getArguments().getSerializable(Constants.CALL_USER);
         //mClient = ClientLab.get(getActivity()).getClient(clientId);
         remoteUsername = getArguments().getString(Constants.CALL_USER);
-
-        Log.d("variables", username);
-        Log.d("variables", remoteUsername);
 
         PeerConnectionFactory.initializeAndroidGlobals(
                 getActivity(),  // Context
@@ -154,7 +152,7 @@ public class CallFragment extends Fragment {
         this.pnRTCClient.attachLocalMediaStream(mediaStream);
 
         // Listen on a channel. This is your "phone number," also set the max chat users.
-        this.pnRTCClient.listenOn("Kevin");
+        this.pnRTCClient.listenOn(username);
         this.pnRTCClient.setMaxConnections(1);
 
         // If the intent contains a number to dial, call it now that you are connected.
@@ -269,12 +267,14 @@ public class CallFragment extends Fragment {
                 String uuid = jsonMsg.getString(Constants.JSON_MSG_UUID);
                 String msg = jsonMsg.getString(Constants.JSON_MSG);
                 long time = jsonMsg.getLong(Constants.JSON_TIME);
-                /*VideoChatActivity.this.runOnUiThread(new Runnable() {
+                final ChatMessage chatMsg = new ChatMessage(uuid, msg, time);
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mChatAdapter.addMessage(chatMsg);
+                        Toast.makeText(getActivity(), chatMsg.toString(), Toast.LENGTH_SHORT).show();
                     }
-                });*/
+                });
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }

@@ -73,7 +73,7 @@ public class MainActivity extends FragmentActivity{
      */
     public void initPubNub(){
         this.mPubNub  = new Pubnub(Constants.PUB_KEY, Constants.SUB_KEY);
-        this.mPubNub.setUUID(this.username);
+        this.mPubNub.setUUID(this.username + Constants.ANDROID_SUFFIX);
         subscribeStdBy();
     }
 
