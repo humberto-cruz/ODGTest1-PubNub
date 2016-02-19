@@ -19,9 +19,11 @@ import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,69 +33,102 @@ public class ContactListFragment extends Fragment {
 
     private RecyclerView mClientsRecyclerView;
     private ClientAdapter mAdapter;
+    private List<Client> clients = new ArrayList<>();
+
+    @Override
+    public void onCreate(Bundle bundle){
+        super.onCreate(bundle);
+        Log.d("log", "onCreate ContactListFragment");
+        clients = new ArrayList<>();
+        mAdapter = new ClientAdapter(clients);
+
+        try {
+            MainActivity.mPubNub.presence(Constants.GLOBAL_CHANNEL, new Callback() {
+
+                @Override
+                public void reconnectCallback(String channel, Object message) {
+                    System.out.println(message);
+                }
+
+                @Override
+                public void successCallback(String channel, Object message) {
+                    //System.out.println(message);
+                    Log.d("presence", "success " + message.toString());
+                    JSONObject msg = (JSONObject) message;
+                    try {
+                        String action = msg.getString(Constants.JSON_ACTION);
+                        String uuid = msg.getString(Constants.JSON_UUIID);
+                        if (action.equals("join")) {
+                            addUser(uuid);
+                        }
+                        else if(action.equals("leave")){
+                            removeUser(uuid);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+
+                @Override
+                public void connectCallback(String channel, Object message) {
+                    //System.out.println(message);
+                    Log.d("presence", "connect " + message.toString());
+                }
+            });
+        } catch (PubnubException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_contact_list, container, false);
 
+
+        Log.d("log", "onCreate View ContactListFragment");
         mClientsRecyclerView = (RecyclerView) view.findViewById(R.id.client_recycler_view);
         mClientsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        updateUI();
+        mClientsRecyclerView.setAdapter(mAdapter);
+
         return view;
     }
 
-    public void updateUI(){
-        ClientLab clientLab = ClientLab.get(getActivity());
-        List<Client> clients =  clientLab.getmClients();
-
-        MainActivity.mPubNub.hereNow(false, true,  new Callback() {
+    /*public void updateUI() throws PubnubException {
+        //ClientLab clientLab = ClientLab.get(getActivity());
+        //List<Client> clients =  clientLab.getmClients();
+        MainActivity.mPubNub.hereNow(Constants.GLOBAL_CHANNEL, new Callback() {
             @Override
             public void successCallback(String channel, Object message) {
                 Log.d("MA-dC", "HERE_NOW: " + " User list " + message.toString());
                 try {
-                    int occupancy = ((JSONObject) message).getInt(Constants.JSON_TOTAL_OCCUPANCY);
-                    JSONObject channels = ((JSONObject) message).getJSONObject(Constants.JSON_CHANNELS);
-                    for(int i=0; i<channels.length(); i++){
 
-                    }
-                    Log.d("json", "TOTAL_OCUPPANCY" + occupancy);
-                    JSONObject jsonCall = new JSONObject();
-                    /*jsonCall.put(Constants.JSON_CALL_USER, username);
-                    jsonCall.put(Constants.JSON_CALL_TIME, System.currentTimeMillis());
-                    MainActivity.mPubNub.publish(callNumStdBy, jsonCall, new Callback() {
-                        @Override
-                        public void successCallback(String channel, Object message) {
-                            Log.d("MA-dC", "SUCCESS: " + message.toString());
-
-                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.replace(R.id.fragment, CallFragment.newInstance(username, mClient.getmName()));
-                            transaction.addToBackStack(null);
-                            transaction.commit();
-
-
+                    //clients.clear();
+                    JSONArray users = ((JSONObject) message).getJSONArray(Constants.JSON_USERS_ARRAY);
+                    for (int i = 0; i < users.length(); i++) {
+                        Log.d("json", users.getString(i));
+                        if (users.getString(i).matches("^(.)*-web$")) {
+                            Client client = new Client();
+                            client.setmName(users.getString(i));
+                            client.setmClientID(users.getString(i));
+                            clients.add(client);
                         }
-                    });*/
+                    }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         });
-
-        mAdapter = new ClientAdapter(clients);
-        mClientsRecyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-
-
-    }
-
-    private void showToast(final String message){
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    }*/
 
     public class ClientHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnFocusChangeListener{
         private TextView mNameTextView;
@@ -118,7 +153,7 @@ public class ContactListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment, ContactDataFragment.newInstance("odg", mClient.getmID())); //TODO: username is harcoded odg
+            transaction.replace(R.id.fragment, ContactDataFragment.newInstance("odg", mClient.getmName())); //TODO: username is harcoded odg
             transaction.addToBackStack(null);
             transaction.commit();
         }
@@ -157,5 +192,35 @@ public class ContactListFragment extends Fragment {
             return mClients.size();
         }
     }
+
+    public void addUser(String user){
+        Client newClient = new Client();
+        newClient.setmName(user);
+        newClient.setmClientID(user);
+        clients.add(newClient);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    public void removeUser(String user){
+        for(Client client: clients){
+            if(client.getmName().equals(user)){
+                clients.remove(client);
+                break;
+            }
+        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+
 
 }

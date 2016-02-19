@@ -11,7 +11,7 @@ public class Client {
     private String mClientID;
 
     public Client(){
-        mID = UUID.randomUUID();
+        //mID = UUID.randomUUID();
     }
 
     public String getmName() {

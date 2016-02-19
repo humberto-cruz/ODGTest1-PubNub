@@ -35,6 +35,7 @@ public class ContactDataFragment extends Fragment {
     private TextView mCallerIDTextView;
     private Button mBtnCall;
     private Button mBtnBack;
+    private String clientName;
 
     String username;
 
@@ -43,9 +44,12 @@ public class ContactDataFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //mCrime = new Crime();
         //UUID crimeId = (UUID) getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
-        UUID clientId = (UUID) getArguments().getSerializable(Constants.CALL_USER);
+        //UUID clientId = (UUID) getArguments().getSerializable(Constants.CALL_USER);
+
+
         username = getArguments().getString(Constants.USER_NAME);
-        mClient = ClientLab.get(getActivity()).getClient(clientId);
+        clientName = getArguments().getString(Constants.CALL_USER);
+        //mClient = ClientLab.get(getActivity()).getClient(clientId);
     }
 
     @Override
@@ -55,14 +59,14 @@ public class ContactDataFragment extends Fragment {
         mBtnBack = (Button) v.findViewById(R.id.btn2);
         mNameTextview = (TextView) v.findViewById(R.id.name);
         mCallerIDTextView = (TextView) v.findViewById(R.id.number);
-        mNameTextview.setText(mClient.getmName());
-        mCallerIDTextView.setText(mClient.getmClientID());
+        mNameTextview.setText(clientName);
+        mCallerIDTextView.setText(clientName);
         mBtnCall.setText("Call");
         mBtnBack.setText("Back");
         mBtnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dispatchCall(mClient.getmName());
+                dispatchCall(clientName);
                 //Toast.makeText(getActivity(), "" + mClient.getmName(), Toast.LENGTH_SHORT).show();
 
             }
@@ -122,7 +126,7 @@ public class ContactDataFragment extends Fragment {
                             Log.d("MA-dC", "SUCCESS: " + message.toString());
 
                             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.replace(R.id.fragment, CallFragment.newInstance(username, mClient.getmName()));
+                            transaction.replace(R.id.fragment, CallFragment.newInstance(username, clientName));
                             transaction.addToBackStack(null);
                             transaction.commit();
 
@@ -149,10 +153,10 @@ public class ContactDataFragment extends Fragment {
         });
     }
 
-    public static ContactDataFragment newInstance(String localUser, UUID callUser){
+    public static ContactDataFragment newInstance(String localUser, String callUser){
         Bundle args = new Bundle();
         args.putString(Constants.USER_NAME, localUser);
-        args.putSerializable(Constants.CALL_USER, callUser);
+        args.putString(Constants.CALL_USER, callUser);
         ContactDataFragment fragment = new ContactDataFragment();
         fragment.setArguments(args);
         return fragment;

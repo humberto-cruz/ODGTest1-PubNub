@@ -62,7 +62,7 @@ public class MainActivity extends FragmentActivity{
         FragmentTransaction ft = fm.beginTransaction();
 
         MainActivityFragment myFragment = new MainActivityFragment();
-        ft.add(R.id.fragment,myFragment);
+        ft.add(R.id.fragment, myFragment);
         ft.commit();
 
 
@@ -82,6 +82,22 @@ public class MainActivity extends FragmentActivity{
      */
     private void subscribeStdBy(){
         try {
+            //user subscribes to a global channel for detecting if he is online or offline
+            this.mPubNub.subscribe(Constants.GLOBAL_CHANNEL, new Callback() {
+                @Override
+                public void connectCallback(String channel, Object message) {
+                    Log.d("MA-iPN", "CONNECTED: " + message.toString());
+                }
+
+                @Override
+                public void errorCallback(String channel, PubnubError error) {
+                    Log.d("MA-iPN", "ERROR: " + error.toString());
+                }
+            });
+
+            
+
+            //user subscribes to a stdbyChannel to receive chat messages
             this.mPubNub.subscribe(this.stdByChannel, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message) {
@@ -89,10 +105,11 @@ public class MainActivity extends FragmentActivity{
                     if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
                     JSONObject jsonMsg = (JSONObject) message;
                     try {
-                        if (!jsonMsg.has(Constants.JSON_CALL_USER)) return;     //Ignore Signaling messages.
+                        if (!jsonMsg.has(Constants.JSON_CALL_USER))
+                            return;     //Ignore Signaling messages.
                         String user = jsonMsg.getString(Constants.JSON_CALL_USER);
                         dispatchIncomingCall(user);
-                    } catch (JSONException e){
+                    } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
@@ -100,12 +117,12 @@ public class MainActivity extends FragmentActivity{
                 @Override
                 public void connectCallback(String channel, Object message) {
                     Log.d("MA-iPN", "CONNECTED: " + message.toString());
-                    setUserStatus(Constants.STATUS_AVAILABLE);
+                    setUserStatus(Constants.STATUS_AVAILABLE, stdByChannel);
                 }
 
                 @Override
                 public void errorCallback(String channel, PubnubError error) {
-                    Log.d("MA-iPN","ERROR: " + error.toString());
+                    Log.d("MA-iPN", "ERROR: " + error.toString());
                 }
             });
         } catch (PubnubException e){
@@ -129,14 +146,14 @@ public class MainActivity extends FragmentActivity{
 
     }
 
-    private void setUserStatus(String status){
+    private void setUserStatus(String status, String channel){
         try {
             JSONObject state = new JSONObject();
             state.put(Constants.JSON_STATUS, status);
-            this.mPubNub.setState(this.stdByChannel, this.username, state, new Callback() {
+            this.mPubNub.setState(channel, this.username, state, new Callback() {
                 @Override
                 public void successCallback(String channel, Object message) {
-                    Log.d("MA-sUS","State Set: " + message.toString());
+                    Log.d("MA-sUS", "State Set: " + message.toString());
                 }
             });
         } catch (JSONException e){
