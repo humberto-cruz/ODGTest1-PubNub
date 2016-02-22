@@ -58,9 +58,7 @@ public class ContactDataFragment extends Fragment {
         mBtnCall = (Button) v.findViewById(R.id.btn1);
         mBtnBack = (Button) v.findViewById(R.id.btn2);
         mNameTextview = (TextView) v.findViewById(R.id.name);
-        mCallerIDTextView = (TextView) v.findViewById(R.id.number);
         mNameTextview.setText(clientName);
-        mCallerIDTextView.setText(clientName);
         mBtnCall.setText("Call");
         mBtnBack.setText("Back");
         mBtnCall.setOnClickListener(new View.OnClickListener() {

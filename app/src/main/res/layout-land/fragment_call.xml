@@ -6,14 +6,25 @@
     android:background="#000000"
     android:clickable="false">
 
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
     <android.opengl.GLSurfaceView
         android:id="@+id/gl_surface"
         android:layout_weight="1"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
+    <com.example.prefixa_01.odgtest1.CanvasView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/canvas_view"/>
 
+    </FrameLayout>
     <LinearLayout
         android:background="#FFFFFF"
         android:layout_width="wrap_content"

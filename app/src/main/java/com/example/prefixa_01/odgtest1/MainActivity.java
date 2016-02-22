@@ -19,14 +19,18 @@ import com.pubnub.api.Pubnub;
 import com.pubnub.api.PubnubError;
 import com.pubnub.api.PubnubException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Array;
 
 public class MainActivity extends FragmentActivity{
 
     private String username;
     private String stdByChannel;
     public static Pubnub mPubNub;
+    private CanvasView customCanvas;
 
 
     @Override
@@ -56,6 +60,7 @@ public class MainActivity extends FragmentActivity{
         //set username, channel and initiate Pubnub
         this.username = "odg";
         this.stdByChannel = this.username + Constants.STDBY_SUFFIX;
+        customCanvas = (CanvasView) findViewById(R.id.canvas_view);
         initPubNub();
 
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
@@ -102,9 +107,32 @@ public class MainActivity extends FragmentActivity{
                 @Override
                 public void successCallback(String channel, Object message) {
                     Log.d("MA-iPN", "MESSAGE: " + message.toString());
+
                     if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
                     JSONObject jsonMsg = (JSONObject) message;
                     try {
+
+                        String cmd = jsonMsg.getString(Constants.JSON_CMD);
+                        String from = jsonMsg.getString(Constants.JSON_FROM);
+
+                        //Chat message
+                        if(cmd.equals("chat")){
+                            final String chat = jsonMsg.getString(Constants.JSON_CHAT);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, chat.toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        else if(cmd.equals("draw")){
+                            JSONArray plots = jsonMsg.getJSONArray(Constants.JSON_PLOTS);
+                            int  []origin = (int [ ]) plots.get(0);
+                            int  []window = (int [ ]) plots.get(1);
+                            int  []end = (int [ ]) plots.get(2);
+                            //JSONArray arrayPlots = plots.getJSONArray("");
+                        }
+                        //incomingCall
                         if (!jsonMsg.has(Constants.JSON_CALL_USER))
                             return;     //Ignore Signaling messages.
                         String user = jsonMsg.getString(Constants.JSON_CALL_USER);

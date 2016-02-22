@@ -32,6 +32,7 @@ import java.util.List;
 public class ContactListFragment extends Fragment {
 
     private RecyclerView mClientsRecyclerView;
+    private TextView mEmptyTextView;
     private ClientAdapter mAdapter;
     private List<Client> clients = new ArrayList<>();
 
@@ -40,7 +41,11 @@ public class ContactListFragment extends Fragment {
         super.onCreate(bundle);
         Log.d("log", "onCreate ContactListFragment");
         clients = new ArrayList<>();
+        Client myClient = new Client();
+        myClient.setmName("Guillermo");
+        clients.add(myClient);
         mAdapter = new ClientAdapter(clients);
+        updateUI();
 
         try {
             MainActivity.mPubNub.presence(Constants.GLOBAL_CHANNEL, new Callback() {
@@ -58,10 +63,10 @@ public class ContactListFragment extends Fragment {
                     try {
                         String action = msg.getString(Constants.JSON_ACTION);
                         String uuid = msg.getString(Constants.JSON_UUIID);
-                        if (action.equals("join")) {
+                        if (action.equals("join") && uuid.matches("^(.)*-web$")) {
                             addUser(uuid);
                         }
-                        else if(action.equals("leave")){
+                        else if(action.equals("leave") || action.equals("timeout")){
                             removeUser(uuid);
                         }
                     } catch (JSONException e) {
@@ -89,14 +94,14 @@ public class ContactListFragment extends Fragment {
 
 
         Log.d("log", "onCreate View ContactListFragment");
+        mEmptyTextView = (TextView) view.findViewById(R.id.list_users_empty_textview);
         mClientsRecyclerView = (RecyclerView) view.findViewById(R.id.client_recycler_view);
         mClientsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mClientsRecyclerView.setAdapter(mAdapter);
-
         return view;
     }
 
-    /*public void updateUI() throws PubnubException {
+    public void updateUI() {
         //ClientLab clientLab = ClientLab.get(getActivity());
         //List<Client> clients =  clientLab.getmClients();
         MainActivity.mPubNub.hereNow(Constants.GLOBAL_CHANNEL, new Callback() {
@@ -108,11 +113,9 @@ public class ContactListFragment extends Fragment {
                     //clients.clear();
                     JSONArray users = ((JSONObject) message).getJSONArray(Constants.JSON_USERS_ARRAY);
                     for (int i = 0; i < users.length(); i++) {
-                        Log.d("json", users.getString(i));
                         if (users.getString(i).matches("^(.)*-web$")) {
                             Client client = new Client();
-                            client.setmName(users.getString(i));
-                            client.setmClientID(users.getString(i));
+                            client.setmName(users.getString(i).split("-")[0]);
                             clients.add(client);
                         }
                     }
@@ -128,7 +131,7 @@ public class ContactListFragment extends Fragment {
                 }
             }
         });
-    }*/
+    }
 
     public class ClientHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnFocusChangeListener{
         private TextView mNameTextView;
@@ -138,7 +141,7 @@ public class ContactListFragment extends Fragment {
         public void bindClient (Client client){
             mClient = client;
             mNameTextView.setText(mClient.getmName());
-            mCallerIDTextView.setText(mClient.getmClientID());
+            //mCallerIDTextView.setText(mClient.getmClientID());
 
         }
 
@@ -147,7 +150,7 @@ public class ContactListFragment extends Fragment {
             itemView.setOnClickListener(this);
             itemView.setOnFocusChangeListener(this);
             mNameTextView = (TextView)itemView.findViewById(R.id.list_item_client_name_text_view);
-            mCallerIDTextView = (TextView)itemView.findViewById(R.id.list_item_client_caller_id_text_view);
+            //mCallerIDTextView = (TextView)itemView.findViewById(R.id.list_item_client_caller_id_text_view);
         }
 
         @Override
@@ -189,21 +192,38 @@ public class ContactListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
+            if(mClients.size()==0){
+                mEmptyTextView.setVisibility(View.VISIBLE);
+            }
+            else{
+                mEmptyTextView.setVisibility(View.GONE);
+            }
             return mClients.size();
         }
     }
 
     public void addUser(String user){
-        Client newClient = new Client();
-        newClient.setmName(user);
-        newClient.setmClientID(user);
-        clients.add(newClient);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.notifyDataSetChanged();
+        String userName = user.split("-")[0];
+        boolean isConnected = false;
+
+        for(Client client: clients){
+            if(client.getmName().equals(userName)){
+                isConnected = true;
+                break;
             }
-        });
+        }
+
+        if(!isConnected){
+            Client newClient = new Client();
+            newClient.setmName(userName);
+            clients.add(newClient);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     public void removeUser(String user){

@@ -28,6 +28,10 @@ public class Constants {
     public static final String JSON_USERS_ARRAY = "uuids";
     public static final String JSON_ACTION = "action";
     public static final String JSON_UUIID = "uuid";
+    public static final String JSON_CMD = "cmd";
+    public static final String JSON_FROM = "from";
+    public static final String JSON_PLOTS = "plots";
+    public static final String JSON_CHAT = "chat";
 
     //Global Channel
     public static final String GLOBAL_CHANNEL = "global";
