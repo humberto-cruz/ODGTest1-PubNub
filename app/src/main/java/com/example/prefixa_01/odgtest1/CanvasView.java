@@ -48,7 +48,7 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Rectangle rectangle = Rectangle.get(getContext());
-        canvas.drawRect((float) rectangle.getXini(), (float) rectangle.getYini(), (float) rectangle.getXend(), (float) rectangle.getYend(), mPaint );
+        canvas.drawRect(rectangle.getXini(), rectangle.getYini(), rectangle.getXend(), rectangle.getYend(), mPaint );
     }
 
     public void clearCanvas() {

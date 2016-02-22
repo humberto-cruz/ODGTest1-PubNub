@@ -60,6 +60,7 @@ public class CallFragment extends Fragment {
     private VideoRenderer.Callbacks localRender;
     private VideoRenderer.Callbacks remoteRender;
     private GLSurfaceView videoView;
+    private static CanvasView customCanvas;
     private boolean backPressed = false;
     private Thread  backPressedThread = null;
 
@@ -90,6 +91,8 @@ public class CallFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_call,container,false);
+
+        customCanvas = (CanvasView) view.findViewById(R.id.canvas_view);
 
         mButtonEnd = (Button) view.findViewById(R.id.btn_end_call);
         mButtonEnd.setText("End");
@@ -210,6 +213,10 @@ public class CallFragment extends Fragment {
         for (numberOfStates=fragmentManager.getBackStackEntryCount(); numberOfStates>0;numberOfStates--){
             fragmentManager.popBackStack();
         }
+    }
+
+    public static View getCanvas(){
+        return customCanvas;
     }
 
     public static CallFragment newInstance(String localUser, String callUser){

@@ -32,6 +32,8 @@ public class Constants {
     public static final String JSON_FROM = "from";
     public static final String JSON_PLOTS = "plots";
     public static final String JSON_CHAT = "chat";
+    public static final String JSON_X = "x";
+    public static final String JSON_Y = "y";
 
     //Global Channel
     public static final String GLOBAL_CHANNEL = "global";

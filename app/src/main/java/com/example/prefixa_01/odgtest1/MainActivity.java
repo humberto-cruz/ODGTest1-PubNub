@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,8 +31,6 @@ public class MainActivity extends FragmentActivity{
     private String username;
     private String stdByChannel;
     public static Pubnub mPubNub;
-    private CanvasView customCanvas;
-
 
     @Override
     public void onStop() {
@@ -55,12 +54,17 @@ public class MainActivity extends FragmentActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_main);
 
         //set username, channel and initiate Pubnub
         this.username = "odg";
         this.stdByChannel = this.username + Constants.STDBY_SUFFIX;
-        customCanvas = (CanvasView) findViewById(R.id.canvas_view);
+
+
+
+        //TODO: Obtain Canvas in MainActivity
         initPubNub();
 
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
@@ -109,6 +113,7 @@ public class MainActivity extends FragmentActivity{
                     Log.d("MA-iPN", "MESSAGE: " + message.toString());
 
                     if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
+                    if(CallFragment.getCanvas() == null) return;
                     JSONObject jsonMsg = (JSONObject) message;
                     try {
 
@@ -126,11 +131,48 @@ public class MainActivity extends FragmentActivity{
                             });
                         }
                         else if(cmd.equals("draw")){
+                            Log.d("MA-iPN", "DRAW: ");
+                            Rectangle rectangle = Rectangle.get(MainActivity.this);
                             JSONArray plots = jsonMsg.getJSONArray(Constants.JSON_PLOTS);
-                            int  []origin = (int [ ]) plots.get(0);
-                            int  []window = (int [ ]) plots.get(1);
-                            int  []end = (int [ ]) plots.get(2);
-                            //JSONArray arrayPlots = plots.getJSONArray("");
+
+                            Log.d("MA-iPN", "json: " + plots.toString());
+
+                            JSONObject origin = plots.getJSONObject(0);
+                            JSONObject window = plots.getJSONObject(1);
+                            JSONObject end = plots.getJSONObject(2);
+
+                            float  yIni = (float) origin.getDouble(Constants.JSON_Y);
+                            float xIni = (float) origin.getDouble(Constants.JSON_X);
+                            float windowHeigth = (float) window.getDouble(Constants.JSON_Y);
+                            float windowWidth = (float) window.getDouble(Constants.JSON_X);
+                            float  yEnd = (float) end.getDouble(Constants.JSON_Y);
+                            float xEnd = (float) end.getDouble(Constants.JSON_X);
+
+                            if(xIni <= xEnd){
+                                rectangle.setXini((xIni / windowWidth) * CallFragment.getCanvas().getWidth());
+                                rectangle.setXend((xEnd / windowWidth) * CallFragment.getCanvas().getWidth());
+                            }
+                            else{
+                                rectangle.setXini((xEnd / windowWidth) * CallFragment.getCanvas().getWidth());
+                                rectangle.setXend((xIni / windowWidth) * CallFragment.getCanvas().getWidth());
+                            }
+                            if(yIni <= yEnd){
+                                rectangle.setYini((yIni / windowHeigth) * CallFragment.getCanvas().getHeight());
+                                rectangle.setYend((yEnd / windowHeigth) * CallFragment.getCanvas().getHeight());
+                            }
+                            else{
+                                rectangle.setYini((yEnd / windowHeigth) * CallFragment.getCanvas().getHeight());
+                                rectangle.setYend((yIni / windowHeigth) * CallFragment.getCanvas().getHeight());
+                            }
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    CallFragment.getCanvas().invalidate();
+                                }
+                            });
+
+
                         }
                         //incomingCall
                         if (!jsonMsg.has(Constants.JSON_CALL_USER))

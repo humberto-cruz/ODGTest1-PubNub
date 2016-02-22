@@ -7,10 +7,10 @@ import android.content.Context;
  */
 public class Rectangle {
 
-    private double mXini;
-    private double mYini;
-    private double mXend;
-    private double mYend;
+    private float mXini;
+    private float mYini;
+    private float mXend;
+    private float mYend;
     private static Rectangle rectangle;
 
     public static Rectangle get(Context context){
@@ -25,35 +25,35 @@ public class Rectangle {
     }
 
 
-    public double getXini() {
+    public float getXini() {
         return mXini;
     }
 
-    public void setXini(double xini) {
+    public void setXini(float xini) {
         mXini = xini;
     }
 
-    public double getYini() {
+    public float getYini() {
         return mYini;
     }
 
-    public void setYini(double yini) {
+    public void setYini(float yini) {
         mYini = yini;
     }
 
-    public double getXend() {
+    public float getXend() {
         return mXend;
     }
 
-    public void setXend(double xend) {
+    public void setXend(float xend) {
         mXend = xend;
     }
 
-    public double getYend() {
+    public float getYend() {
         return mYend;
     }
 
-    public void setYend(double yend) {
+    public void setYend(float yend) {
         mYend = yend;
     }
 
