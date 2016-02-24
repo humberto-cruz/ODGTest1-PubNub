@@ -41,9 +41,6 @@ public class ContactListFragment extends Fragment {
         super.onCreate(bundle);
         Log.d("log", "onCreate ContactListFragment");
         clients = new ArrayList<>();
-        Client myClient = new Client();
-        myClient.setmName("Guillermo");
-        clients.add(myClient);
         mAdapter = new ClientAdapter(clients);
         updateUI();
 
@@ -64,9 +61,11 @@ public class ContactListFragment extends Fragment {
                         String action = msg.getString(Constants.JSON_ACTION);
                         String uuid = msg.getString(Constants.JSON_UUIID);
                         if (action.equals("join") && uuid.matches("^(.)*-web$")) {
+                            Log.d("presence", "join user " + uuid);
                             addUser(uuid);
                         }
                         else if(action.equals("leave") || action.equals("timeout")){
+                            Log.d("presence", "leave user " + uuid);
                             removeUser(uuid);
                         }
                     } catch (JSONException e) {
@@ -102,8 +101,6 @@ public class ContactListFragment extends Fragment {
     }
 
     public void updateUI() {
-        //ClientLab clientLab = ClientLab.get(getActivity());
-        //List<Client> clients =  clientLab.getmClients();
         MainActivity.mPubNub.hereNow(Constants.GLOBAL_CHANNEL, new Callback() {
             @Override
             public void successCallback(String channel, Object message) {
@@ -132,6 +129,15 @@ public class ContactListFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d("onDestroy", "ContactListFragment");
+        MainActivity.mPubNub.unsubscribePresence(Constants.GLOBAL_CHANNEL);
+    }
+
+
 
     public class ClientHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnFocusChangeListener{
         private TextView mNameTextView;
@@ -227,8 +233,9 @@ public class ContactListFragment extends Fragment {
     }
 
     public void removeUser(String user){
+        String userName = user.split("-")[0];
         for(Client client: clients){
-            if(client.getmName().equals(user)){
+            if(client.getmName().equals(userName)){
                 clients.remove(client);
                 break;
             }

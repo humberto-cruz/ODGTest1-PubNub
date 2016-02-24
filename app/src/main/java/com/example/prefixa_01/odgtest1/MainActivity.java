@@ -104,6 +104,8 @@ public class MainActivity extends FragmentActivity{
                 }
             });
 
+            this.mPubNub.setHeartbeat(3600);
+
             
 
             //user subscribes to a stdbyChannel to receive chat messages
@@ -207,8 +209,6 @@ public class MainActivity extends FragmentActivity{
      */
     private void dispatchIncomingCall(String remoteUsername){
 
-
-        showToast("Call from: " + remoteUsername);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment, ReceiveCallFragment.newInstance(username, remoteUsername));
         transaction.addToBackStack(null);
@@ -231,26 +231,6 @@ public class MainActivity extends FragmentActivity{
         }
     }
 
-    private void getUserStatus(String userId){
-        String stdByUser = userId + Constants.STDBY_SUFFIX;
-        this.mPubNub.getState(stdByUser, userId, new Callback() {
-            @Override
-            public void successCallback(String channel, Object message) {
-                Log.d("MA-gUS", "User Status: " + message.toString());
-            }
-        });
-    }
 
-    /**
-     * Ensures that toast is run on the UI thread.
-     * @param message
-     */
-    private void showToast(final String message){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+
 }
