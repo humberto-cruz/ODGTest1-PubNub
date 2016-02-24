@@ -8,10 +8,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.prefixa_01.odgtest1.util.Constants;
@@ -31,6 +34,9 @@ public class MainActivity extends FragmentActivity{
     private String username;
     private String stdByChannel;
     public static Pubnub mPubNub;
+    private LayoutInflater inflater;
+    private View layout;
+    private Toast toast;
 
     @Override
     public void onStop() {
@@ -57,6 +63,13 @@ public class MainActivity extends FragmentActivity{
 
 
         setContentView(R.layout.activity_main);
+
+        //chat message toast
+        inflater = getLayoutInflater();
+        layout = inflater.inflate(R.layout.chat_message,
+                (ViewGroup) findViewById(R.id.chat_message));
+        toast = new Toast(getApplicationContext());
+
 
         //set username, channel and initiate Pubnub
         this.username = "odg";
@@ -128,7 +141,14 @@ public class MainActivity extends FragmentActivity{
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(MainActivity.this, chat.toString(), Toast.LENGTH_SHORT).show();
+
+                                    TextView text = (TextView) layout.findViewById(R.id.text);
+                                    text.setText(chat.split("^\\$")[0]);
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    toast.setDuration(Toast.LENGTH_LONG);
+                                    toast.setView(layout);
+                                    toast.show();
+                                    //Toast.makeText(MainActivity.this, chat.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
