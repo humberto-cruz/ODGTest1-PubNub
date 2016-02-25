@@ -78,9 +78,6 @@ public class MainActivity extends FragmentActivity{
         this.username = "odg";
         this.stdByChannel = this.username + Constants.STDBY_SUFFIX;
 
-
-
-        //TODO: Obtain Canvas in MainActivity
         initPubNub();
 
         android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
