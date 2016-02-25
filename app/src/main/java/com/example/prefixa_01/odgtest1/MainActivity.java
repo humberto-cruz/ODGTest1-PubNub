@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,8 @@ public class MainActivity extends FragmentActivity{
 
 
         setContentView(R.layout.activity_main);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
 
         //chat message toast
         inflater = getLayoutInflater();
@@ -128,15 +131,23 @@ public class MainActivity extends FragmentActivity{
                     Log.d("MA-iPN", "MESSAGE: " + message.toString());
 
                     if (!(message instanceof JSONObject)) return; // Ignore if not JSONObject
-                    if(CallFragment.getCanvas() == null) return;
-                    JSONObject jsonMsg = (JSONObject) message;
+                    final JSONObject jsonMsg = (JSONObject) message;
                     try {
 
+                        if (!jsonMsg.has(Constants.JSON_CMD)) return;
                         String cmd = jsonMsg.getString(Constants.JSON_CMD);
-                        String from = jsonMsg.getString(Constants.JSON_FROM);
+
 
                         //Chat message
-                        if(cmd.equals("chat")){
+                        if(cmd.equals("call")){
+                            //incomingCall
+                            //if (!jsonMsg.has(Constants.JSON_CALL_USER))
+                            //    return;     //Ignore Signaling messages.
+                            //String user = jsonMsg.getString(Constants.JSON_CALL_USER);
+                            String from = jsonMsg.getString(Constants.JSON_FROM);
+                            dispatchIncomingCall(from);
+                        }
+                        else if(cmd.equals("chat")){
                             final String chat = jsonMsg.getString(Constants.JSON_CHAT);
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -148,12 +159,14 @@ public class MainActivity extends FragmentActivity{
                                     toast.setDuration(Toast.LENGTH_LONG);
                                     toast.setView(layout);
                                     toast.show();
+
                                     //Toast.makeText(MainActivity.this, chat.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
                         else if(cmd.equals("draw")){
                             Log.d("MA-iPN", "DRAW: ");
+                            if(CallFragment.getCanvas() == null) return;
                             Rectangle rectangle = Rectangle.get(MainActivity.this);
                             JSONArray plots = jsonMsg.getJSONArray(Constants.JSON_PLOTS);
 
@@ -196,11 +209,6 @@ public class MainActivity extends FragmentActivity{
 
 
                         }
-                        //incomingCall
-                        if (!jsonMsg.has(Constants.JSON_CALL_USER))
-                            return;     //Ignore Signaling messages.
-                        String user = jsonMsg.getString(Constants.JSON_CALL_USER);
-                        dispatchIncomingCall(user);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -233,7 +233,8 @@ public class CallFragment extends Fragment {
      * DemoRTC is just a Log Listener with the added functionality to append screens.
      */
     private class DemoRTCListener extends LogRTCListener {
-        @Override
+
+        /*@Override
         public void onLocalStream(final MediaStream localStream) {
             super.onLocalStream(localStream); // Will log values
             getActivity().runOnUiThread(new Runnable() {
@@ -257,7 +258,7 @@ public class CallFragment extends Fragment {
                             return;
                         remoteStream.videoTracks.get(0).addRenderer(new VideoRenderer(remoteRender));
                         VideoRendererGui.update(remoteRender, 0, 0, 100, 100, VideoRendererGui.ScalingType.SCALE_ASPECT_FILL, false);
-                        VideoRendererGui.update(localRender, 72, 65, 25, 25, VideoRendererGui.ScalingType.SCALE_ASPECT_FIT, true);
+                        //VideoRendererGui.update(localRender, 72, 65, 25, 25, VideoRendererGui.ScalingType.SCALE_ASPECT_FIT, true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -285,7 +286,7 @@ public class CallFragment extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
         @Override
         public void onPeerConnectionClosed(PnPeer peer) {
